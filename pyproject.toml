@@ -1,0 +1,13 @@
+[project]
+name = "posture-system-py39"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.9.25"
+dependencies = [
+    "hx711>=1.1.2.3",
+    "mediapipe-rpi3>=0.8.8",
+    "opencv-python>=4.13.0.92",
+    "pygame>=2.6.1",
+    "rpi-gpio>=0.7.1",
+]
