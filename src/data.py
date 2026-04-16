@@ -8,4 +8,4 @@ class ThreadData:
         self.angle = 0.0
 
         # ultrasonic
-        self.distance = 0.0
+        self.distance = 10000.0
