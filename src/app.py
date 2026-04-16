@@ -205,5 +205,4 @@ if __name__ == "__main__":
     t_tts.daemon = True
     t_tts.start()
     
-    # 啟動 Flask (host='0.0.0.0' 允許區域網路訪問)
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
