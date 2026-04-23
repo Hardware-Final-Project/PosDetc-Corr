@@ -33,13 +33,16 @@ app = Flask(__name__)
 output_frame = None
 lock = threading.Lock()
 
+BAD_ANGLE = 28.0
+
 # init thread shared data
 shared_data = ThreadData()
 hx711_init_event = threading.Event()
 press_button_place_cup_event = threading.Event()
 
 # camera device
-cam_device = "http://192.168.0.83:8080/video"
+#cam_device = "http://admin:admin@192.168.208.49:8081/video"
+cam_device = 0
 
 # --- 初始化 MediaPipe ---
 mp_pose = mp.solutions.pose
@@ -87,7 +90,7 @@ def process_hx711():
             break
 
     shared_data.empty_weight = _hx711.get_weight()
-    
+    print(f"The empty weight: {shared_data.empty_weight}")
     press_button_place_cup_event.set()
 
     weight_ma = MovingAverage(5)
@@ -122,14 +125,14 @@ def process_call_tts():
     while True:
         output_str = ""
         empty_weight = shared_data.empty_weight
-        if (empty_weight - 100) < shared_data.weight < (empty_weight + 20):
-            if len(output_str) == 0: output_str += "，"
+        if (empty_weight - 100) < shared_data.weight < (empty_weight - 5):
+            if len(output_str) != 0: output_str += "，"
             output_str += "請儘快加水"
-        if shared_data.angle > 28.0:
-            if len(output_str) == 0: output_str += "，"
+        if shared_data.angle > BAD_ANGLE:
+            if len(output_str) != 0: output_str += "，"
             output_str += "請坐直"
-        if shared_data.distance < 40.0:
-            if len(output_str) == 0: output_str += "，"
+        if shared_data.distance < 35.0:
+            if len(output_str) != 0: output_str += "，"
             output_str += "請離螢幕遠點"
         
         if len(output_str) > 0:
@@ -138,7 +141,7 @@ def process_call_tts():
             gTTS_audio(output_str, filename)
             os.system(f"mpg123 {filename}")
             os.system(f"rm {filename}")
-        time.sleep(10)
+            time.sleep(3)
 
 
 def calculate_neck_angle(ear, shoulder):
@@ -182,7 +185,7 @@ def process_pose():
                 angle = calculate_neck_angle(ear, shoulder)
                 avg_angle = shared_data.angle = angle_ma.next(angle)
 
-                status = "BAD" if avg_angle > 25 else "GOOD"
+                status = "BAD" if avg_angle > BAD_ANGLE else "GOOD"
                 color = (0, 0, 255) if status == "BAD" else (0, 255, 0)
                 
                 # 繪製文字到影像上
