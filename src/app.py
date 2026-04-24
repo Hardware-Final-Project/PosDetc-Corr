@@ -12,7 +12,12 @@ from ultrasonic import Ultrasonic
 from audio import gTTS_audio
 from data import ThreadData
 import RPi.GPIO as GPIO
+import warnings
+import logging
 
+# Disable warning
+warnings.filterwarnings("ignore", category=UserWarning, module='gtts')
+logging.getLogger('gtts').setLevel(logging.ERROR)
 
 class MovingAverage:
     def __init__(self, max_len):
@@ -139,7 +144,7 @@ def process_call_tts():
             print(output_str)
             filename = 'temp.mp3'
             gTTS_audio(output_str, filename)
-            os.system(f"mpg123 {filename}")
+            os.system(f"mpg123 -q {filename}")
             os.system(f"rm {filename}")
             time.sleep(3)
 
